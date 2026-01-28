@@ -1,0 +1,2 @@
+# Health Check Endpoint
+GET /api/health

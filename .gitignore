@@ -1,0 +1,64 @@
+# Environment variables (never commit secrets!)
+.env
+.env.*
+*.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Runtime data
+*.pid
+*.seed
+*.pid.lock
+
+# Build/compiled files
+dist/
+build/
+coverage/
+.out/
+.next/
+
+# Cache
+.cache/
+.temp/
+.tmp/
+.ntvs_*
+.njsproj
+.sass-cache/
+
+# IDE/Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*.sublime-*
+*.code-workspace
+
+# Testing
+/coverage
+.nyc_output
+
+# Package manager specific
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# macOS
+.DS_Store
+
+# Debug
+debug/
+*.dump

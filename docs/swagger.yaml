@@ -1,0 +1,493 @@
+openapi: 3.0.0
+info:
+  title: ASS API Documentation
+  version: 1.0.0
+  description: API documentation for the Users, Books, Chapters, and Images endpoints of AI Study Sync.
+paths:
+  # Users Endpoints
+  /api/users/register:
+    post:
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - email
+                - password
+              properties:
+                username:
+                  type: string
+                  example: 'john_doe'
+                email:
+                  type: string
+                  format: email
+                  example: 'john@example.com'
+                password:
+                  type: string
+                  format: password
+                  example: 'Passw0rd!'
+      responses:
+        '201':
+          description: User registered successfully.
+        '409':
+          description: Conflict – email or username already exists.
+        '422':
+          description: Missing required fields or invalid data.
+  /api/users/login:
+    post:
+      summary: Log in a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: 'john@example.com'
+                password:
+                  type: string
+                  format: password
+                  example: 'Passw0rd!'
+      responses:
+        '200':
+          description: Successful login. Returns user object and access token.
+        '401':
+          description: Unauthorized – invalid credentials.
+        '422':
+          description: Missing email or password.
+  /api/users/logout:
+    post:
+      summary: Logout a user
+      responses:
+        '200':
+          description: User logged out successfully.
+        '401':
+          description: Unauthorized – missing or invalid refresh token.
+  /api/users/send-code:
+    post:
+      summary: Send a verification code to the user's email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: 'john@example.com'
+      responses:
+        '200':
+          description: Verification code sent successfully.
+        '422':
+          description: Missing email or invalid email format.
+  /api/users/verify-code:
+    post:
+      summary: Verify the code sent to the user's email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - code
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: 'john@example.com'
+                code:
+                  type: string
+                  example: '1234'
+      responses:
+        '201':
+          description: Code verified successfully.
+        '400':
+          description: Incorrect or expired verification code.
+        '422':
+          description: Missing email or code.
+  /api/users/reset-password:
+    patch:
+      summary: Reset a user's password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - newPassword
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: 'john@example.com'
+                newPassword:
+                  type: string
+                  format: password
+                  example: 'NewPassw0rd!'
+      responses:
+        '200':
+          description: Password updated successfully.
+        '422':
+          description: Missing or invalid email/newPassword.
+        '500':
+          description: Internal server error during password update.
+
+  # Books Endpoints
+  /api/books:
+    get:
+      summary: Retrieve a list of all books
+      responses:
+        '200':
+          description: A list of books.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Book'
+    post:
+      summary: Create a new book
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookInput'
+      responses:
+        '201':
+          description: Book created successfully.
+        '422':
+          description: Invalid input.
+  /api/books/{bookId}:
+    get:
+      summary: Get a book by ID
+      parameters:
+        - in: path
+          name: bookId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Book details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+        '404':
+          description: Book not found.
+    put:
+      summary: Update a book by ID
+      parameters:
+        - in: path
+          name: bookId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookInput'
+      responses:
+        '200':
+          description: Book updated successfully.
+        '404':
+          description: Book not found.
+        '422':
+          description: Invalid input.
+    delete:
+      summary: Delete a book by ID
+      parameters:
+        - in: path
+          name: bookId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Book deleted successfully.
+        '404':
+          description: Book not found.
+
+  # Chapters Endpoints
+  /api/books/{bookId}/chapters:
+    get:
+      summary: Retrieve all chapters of a book
+      parameters:
+        - in: path
+          name: bookId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of chapters.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Chapter'
+        '404':
+          description: Book not found.
+    post:
+      summary: Add a new chapter to a book
+      parameters:
+        - in: path
+          name: bookId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChapterInput'
+      responses:
+        '201':
+          description: Chapter added successfully.
+        '404':
+          description: Book not found.
+        '422':
+          description: Invalid input.
+  /api/books/{bookId}/chapters/{chapterId}:
+    get:
+      summary: Retrieve a specific chapter from a book
+      parameters:
+        - in: path
+          name: bookId
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: chapterId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Chapter details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Chapter'
+        '404':
+          description: Chapter not found.
+    put:
+      summary: Update a specific chapter in a book
+      parameters:
+        - in: path
+          name: bookId
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: chapterId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChapterInput'
+      responses:
+        '200':
+          description: Chapter updated successfully.
+        '404':
+          description: Chapter not found.
+        '422':
+          description: Invalid input.
+    delete:
+      summary: Delete a specific chapter from a book
+      parameters:
+        - in: path
+          name: bookId
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: chapterId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Chapter deleted successfully.
+        '404':
+          description: Chapter not found.
+
+  # Images Endpoints
+  /api/books/{bookId}/images:
+    get:
+      summary: Retrieve all images for a book
+      parameters:
+        - in: path
+          name: bookId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list of images.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Image'
+        '404':
+          description: Book not found.
+    post:
+      summary: Upload an image for a book
+      parameters:
+        - in: path
+          name: bookId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Image uploaded successfully.
+        '404':
+          description: Book not found.
+        '422':
+          description: Invalid input.
+  /api/books/{bookId}/images/{imageId}:
+    get:
+      summary: Retrieve a specific image for a book
+      parameters:
+        - in: path
+          name: bookId
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: imageId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Image details.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Image'
+        '404':
+          description: Image not found.
+    delete:
+      summary: Delete a specific image from a book
+      parameters:
+        - in: path
+          name: bookId
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: imageId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Image deleted successfully.
+        '404':
+          description: Image not found.
+
+components:
+  schemas:
+    Book:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 'book123'
+        title:
+          type: string
+          example: 'Introduction to AI'
+        author:
+          type: string
+          example: 'Jane Doe'
+        description:
+          type: string
+          example: 'A comprehensive guide to AI.'
+    BookInput:
+      type: object
+      properties:
+        title:
+          type: string
+          example: 'Introduction to AI'
+        author:
+          type: string
+          example: 'Jane Doe'
+        description:
+          type: string
+          example: 'A comprehensive guide to AI.'
+      required:
+        - title
+        - author
+    Chapter:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 'chap123'
+        title:
+          type: string
+          example: 'Getting Started'
+        content:
+          type: string
+          example: 'Chapter content goes here...'
+    ChapterInput:
+      type: object
+      properties:
+        title:
+          type: string
+          example: 'Getting Started'
+        content:
+          type: string
+          example: 'Chapter content goes here...'
+      required:
+        - title
+    Image:
+      type: object
+      properties:
+        id:
+          type: string
+          example: 'img123'
+        url:
+          type: string
+          example: 'https://example.com/image.jpg'

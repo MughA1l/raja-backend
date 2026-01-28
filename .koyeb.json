@@ -1,0 +1,24 @@
+{
+  "name": "ai-study-sync-backend",
+  "type": "web",
+  "build": {
+    "buildCommand": "npm install"
+  },
+  "run": {
+    "command": "npm start"
+  },
+  "ports": [
+    {
+      "port": 3000,
+      "protocol": "http"
+    }
+  ],
+  "health": {
+    "path": "/api/health",
+    "port": 3000
+  },
+  "env": {
+    "NODE_ENV": "production",
+    "PORT": "3000"
+  }
+}
