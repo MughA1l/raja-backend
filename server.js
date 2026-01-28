@@ -84,8 +84,17 @@ const startServer = async () => {
       );
     });
 
-    // start bullMQ worker
-    startWorker();
+    // start bullMQ worker (optional - only if Redis is available)
+    try {
+      if (process.env.REDIS_HOST || process.env.REDIS_URL) {
+        startWorker();
+        console.log('BullMQ worker started successfully');
+      } else {
+        console.warn('Redis not configured - BullMQ worker disabled');
+      }
+    } catch (error) {
+      console.warn('Failed to start BullMQ worker (Redis unavailable):', error.message);
+    }
   } catch (error) {
     console.error('Failed to start server:', error);
     process.exit(1);
